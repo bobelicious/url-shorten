@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -23,11 +24,22 @@ public class UrlController {
     
     @PostMapping("/shorten")
     public ResponseEntity<String> shortenUrl(@RequestBody UrlDto urlDto){
+
         return new ResponseEntity<String>(urlService.CreateShortenUrl(urlDto), HttpStatus.CREATED);
     }
 
     @GetMapping("/{shortUrl}")
-     public RedirectView redirectToOriginalURL(@PathVariable String shortUrl) {
-        return urlService.redirectToPage(shortUrl);
+     public RedirectView redirectToOriginalURL(@PathVariable String shortUrl,@RequestParam(required = false) String ref) {
+        StringBuilder source = new StringBuilder();
+        if(ref.isEmpty()){
+            source.append("origem");
+        }
+        source.append(ref);
+        return urlService.redirectToPage(shortUrl,source.toString());
+     }
+
+     @GetMapping("/info/{shortUrl}")
+     public ResponseEntity<UrlDto> getInfoFromShortenUrl(@RequestParam String shortenUrl){
+        return new ResponseEntity<UrlDto>(urlService.getInfoFromShortenUrl(shortenUrl), HttpStatus.OK);
      }
 }

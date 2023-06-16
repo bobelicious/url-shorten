@@ -1,5 +1,7 @@
 package com.bobe.urlshortner.model;
 
+import java.util.HashMap;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,4 +30,10 @@ public class Url {
     private String urlShortened;
     @Column(name = "REQUEST_NUMS")
     private Integer requestNums;
+    @Column(name="SOURCE")
+    private HashMap<String,Integer> source;
+    @Column(name="LAST_ACCESS")
+    private String lastAccess;
+    @Column(name="REGISTER_DATE")
+    private String registerDate;
 }

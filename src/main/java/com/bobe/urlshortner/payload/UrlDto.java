@@ -14,4 +14,7 @@ public class UrlDto {
     private String url;
     private String urlShortened;
     private Integer requestNums;
+    private String source;
+    private String lastAccess;
+    private String registerDate;
 }
