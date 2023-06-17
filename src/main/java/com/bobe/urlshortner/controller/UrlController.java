@@ -21,25 +21,28 @@ public class UrlController {
 
     @Autowired
     private UrlService urlService;
-    
+
     @PostMapping("/shorten")
-    public ResponseEntity<String> shortenUrl(@RequestBody UrlDto urlDto){
+    public ResponseEntity<String> shortenUrl(@RequestBody UrlDto urlDto) {
 
         return new ResponseEntity<String>(urlService.CreateShortenUrl(urlDto), HttpStatus.CREATED);
     }
 
     @GetMapping("/{shortUrl}")
-     public RedirectView redirectToOriginalURL(@PathVariable String shortUrl,@RequestParam(required = false) String ref) {
+    public RedirectView redirectToOriginalURL(@PathVariable String shortUrl,
+            @RequestParam(required = false) String ref) {
         StringBuilder source = new StringBuilder();
-        if(ref.isEmpty()){
+        if (ref == null) {
             source.append("origem");
-        }
-        source.append(ref);
-        return urlService.redirectToPage(shortUrl,source.toString());
-     }
+        } else {
+            source.append(ref);
 
-     @GetMapping("/info/{shortUrl}")
-     public ResponseEntity<UrlDto> getInfoFromShortenUrl(@PathVariable String shortUrl){
+        }
+        return urlService.redirectToPage(shortUrl, source.toString());
+    }
+
+    @GetMapping("/info/{shortUrl}")
+    public ResponseEntity<UrlDto> getInfoFromShortenUrl(@PathVariable String shortUrl) {
         return new ResponseEntity<UrlDto>(urlService.getInfoFromShortenUrl(shortUrl), HttpStatus.OK);
-     }
+    }
 }
