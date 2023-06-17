@@ -1,12 +1,14 @@
 package com.bobe.urlshortner.model;
 
-import java.util.HashMap;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -31,7 +33,8 @@ public class Url {
     @Column(name = "REQUEST_NUMS")
     private Integer requestNums;
     @Column(name="SOURCE")
-    private HashMap<String,Integer> source;
+    @OneToMany(mappedBy = "url", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Source> source;
     @Column(name="LAST_ACCESS")
     private String lastAccess;
     @Column(name="REGISTER_DATE")

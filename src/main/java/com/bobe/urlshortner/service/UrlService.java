@@ -1,15 +1,16 @@
 package com.bobe.urlshortner.service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.view.RedirectView;
 
+import com.bobe.urlshortner.model.Source;
 import com.bobe.urlshortner.model.Url;
 import com.bobe.urlshortner.payload.UrlDto;
+import com.bobe.urlshortner.repository.SourceRepository;
 import com.bobe.urlshortner.repository.UrlRepository;
 
 @Service
@@ -19,41 +20,52 @@ public class UrlService {
     private UrlRepository urlRepository;
 
     @Autowired
+    private SourceRepository sourceRepository;
+
+    @Autowired
     private ModelMapper mapper;
 
     public String CreateShortenUrl(UrlDto urlDto) {
         var newUrl = toModel(urlDto);
         var urlShorten = generateShortenUrl();
-        var newSource = new HashMap<String,Integer>();
         if (checkShortenUrl(urlShorten)) {
             urlShorten = generateShortenUrl();
         }
         newUrl.setUrlShortened(urlShorten);
         newUrl.setRequestNums(0);
         newUrl.setRegisterDate(LocalDateTime.now().toString());
-        newUrl.setSource(newSource);
         return "http://localhost:8080/api/" + urlRepository.save(newUrl).getUrlShortened();
     }
 
-    public RedirectView redirectToPage(String urlShorten, String source){
-        var longUrl = urlRepository.findByUrlShortened(urlShorten).orElseThrow(()->new RuntimeException("Url nao econtrada"));
-        var sourceList = longUrl.getSource();
+    public RedirectView redirectToPage(String urlShorten, String source) {
+        var longUrl = urlRepository.findByUrlShortened(urlShorten)
+                .orElseThrow(() -> new RuntimeException("Url nao econtrada"));
         longUrl.setRequestNums(longUrl.getRequestNums() + 1);
         longUrl.setLastAccess(LocalDateTime.now().toString());
-        if(sourceList.containsKey(source)){
-            var newValue = sourceList.get(source);
-            newValue += 1; 
-            sourceList.put(source, newValue);
-        }
+        insertOrUpdateSource(longUrl, source);
         urlRepository.save(longUrl);
         RedirectView redirectView = new RedirectView();
         redirectView.setUrl(longUrl.getUrl());
         return redirectView;
     }
 
+    private void insertOrUpdateSource(Url url, String source) {
+        var returnedSource = sourceRepository.findByNameIgnoreCaseAndUrl(source, url);
+        if (returnedSource.isEmpty()) {
+            var newSource = new Source();
+            newSource.setName(source);
+            newSource.setAccess(1);
+            newSource.setUrl(url);
+            sourceRepository.save(newSource);
+        } else {
+            returnedSource.get().setAccess(returnedSource.get().getAccess() + 1);
+            sourceRepository.save(returnedSource.get());
+        }
+    }
 
-    public UrlDto getInfoFromShortenUrl(String shortenUrl){
-        var url = urlRepository.findByUrlShortened(shortenUrl).orElseThrow(()-> new RuntimeException("Url nao encontrada"));
+    public UrlDto getInfoFromShortenUrl(String shortenUrl) {
+        var url = urlRepository.findByUrlShortened(shortenUrl)
+                .orElseThrow(() -> new RuntimeException("Url nao encontrada"));
         return toDto(url);
     }
 

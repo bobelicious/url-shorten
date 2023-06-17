@@ -39,7 +39,7 @@ public class UrlController {
      }
 
      @GetMapping("/info/{shortUrl}")
-     public ResponseEntity<UrlDto> getInfoFromShortenUrl(@RequestParam String shortenUrl){
-        return new ResponseEntity<UrlDto>(urlService.getInfoFromShortenUrl(shortenUrl), HttpStatus.OK);
+     public ResponseEntity<UrlDto> getInfoFromShortenUrl(@PathVariable String shortUrl){
+        return new ResponseEntity<UrlDto>(urlService.getInfoFromShortenUrl(shortUrl), HttpStatus.OK);
      }
 }
